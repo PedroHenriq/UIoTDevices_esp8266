@@ -1,14 +1,23 @@
 #include <UHttp_esp8266.h>
 
+UHttp_esp8266 cliente;
+Service service1;
+
 void setup(){
   Serial.begin(115200);
-  UHttp_esp8266 cliente("http://192.168.0.105:5000");
-  Service service1 = cliente.create_service(1, "getTemp", "°C", true, "Temperatura");
-  cliente.send_data(service1, (char*)"56", 0);
+//  UHttp_esp8266 cliente("http://192.168.0.105:5000");
+//  Service service1 = cliente.create_service(1, "getTemp", "°C", true, "Temperatura");
+//  cliente.send_data(service1, (char*)"56", 0);
+
+
+  cliente.init();
+  cliente.set_server("http://192.168.0.105:5000");
+  service1 = cliente.create_service(1, "getTemp", "°C", true, "Temperatura");
 }
 
 void loop(){
   delay(5000);
+  cliente.send_data(service1, (char*)"56", 0);
   Serial.println("loop");
 }
 //#include <ArduinoJson.h>

@@ -8,7 +8,11 @@
 
 class UHttp_esp8266 : public BaseProtocol_esp8266{
     public:
+        UHttp_esp8266();
         UHttp_esp8266(String);
+        void init();
+        void set_server(String);
+        // UHttp_esp8266(String);
         bool register_device();
         bool register_service(Service);
         bool register_data(Service, char*, int);

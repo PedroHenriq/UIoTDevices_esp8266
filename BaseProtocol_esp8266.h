@@ -16,6 +16,7 @@ class Service {
       this->numeric = numeric;
       this->parameter = parameter;
     }
+      Service(){}
     int number;
     const char * name;
     String *tags;
