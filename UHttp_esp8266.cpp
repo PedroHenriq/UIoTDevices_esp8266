@@ -46,11 +46,17 @@ bool UHttp_esp8266::register_device(){
   data = this->make_client_data();
   this->http.begin(this->server + "/client");
   this->http.addHeader("Content-Type", "application/json");
-  Serial.println(this->http.POST(data));
+  if(this->http.POST(data) == 200) {
+    this->http.end();
+    return true;
+  }
+
   // data = "oicara{'tudo': 1}";
   // this->publish("Register/Device", data);
+  else {
   this->http.end();
   return false;
+}
 }
 bool UHttp_esp8266::register_service(Service s){
   char *service;
@@ -59,10 +65,20 @@ bool UHttp_esp8266::register_service(Service s){
   this->http.begin(this->server + "/service");
   this->http.addHeader("Content-Type", "application/json");
   Serial.println(service);
-  Serial.println(this->http.POST(service));
+  int var = this->http.POST(service);
+  Serial.print("Var: ");
+  Serial.print(var);
+  if(var == 200) {
+    this->http.end();
+    return true;
+  }
 
+  // data = "oicara{'tudo': 1}";
+  // this->publish("Register/Device", data);
+  else {
   this->http.end();
   return false;
+}
 }
 bool UHttp_esp8266::register_data(Service s, char* value, int sensitive){
   char *data;
@@ -71,7 +87,15 @@ bool UHttp_esp8266::register_data(Service s, char* value, int sensitive){
   this->http.begin(this->server + "/data");
   this->http.addHeader("Content-Type", "application/json");
   Serial.println(data);
-  Serial.println(this->http.POST(data));
+  if(this->http.POST(data) == 200) {
+    this->http.end();
+    return true;
+  }
 
+  // data = "oicara{'tudo': 1}";
+  // this->publish("Register/Device", data);
+  else {
+  this->http.end();
   return false;
+}
 }

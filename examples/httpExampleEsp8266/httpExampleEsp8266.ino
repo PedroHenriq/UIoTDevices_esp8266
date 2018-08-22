@@ -11,12 +11,12 @@ void setup(){
 
 
   cliente.init();
-  cliente.set_server("http://192.168.0.105:5000");
+  cliente.set_server("192.168.0.109:8000");
   service1 = cliente.create_service(1, "getTemp", "°C", true, "Temperatura");
 }
 
 void loop(){
-  delay(5000);
+  delay(15000);
   cliente.send_data(service1, (char*)"56", 0);
   Serial.println("loop");
 }

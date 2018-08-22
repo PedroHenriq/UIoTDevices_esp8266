@@ -2,8 +2,8 @@
 
 bool BaseProtocol_esp8266::send_data(Service service,char *data, int sensitive=0) {
   Serial.println("Send Data");
-	(!this->DEVICE_REGISTERED)? this->register_all(service, data, sensitive) : this->register_data(service, data, sensitive);
-  this->DEVICE_REGISTERED = true;
+	this->DEVICE_REGISTERED = (!this->DEVICE_REGISTERED)? this->register_all(service, data, sensitive) : this->register_data(service, data, sensitive);
+  return this->DEVICE_REGISTERED;
 }
 
 void BaseProtocol_esp8266::device_identificator(){
@@ -136,6 +136,7 @@ Service BaseProtocol_esp8266::create_service(int number, const char *name, Strin
 }
 
 bool BaseProtocol_esp8266::register_all(Service service, char *data, int sensitive){
+  Serial.println("Register all");
   return this->register_device() && this->register_service(service) && this->register_data(service, data, sensitive);
   // this->register_device();
   // this->register_service(service);
@@ -189,7 +190,7 @@ char *BaseProtocol_esp8266::make_service_data(Service service){
   root["name"] = service.name;
   root["parameter"] = service.parameter;
   root["unit"] = service.unit;
-  // root["numeric"] = service.numeric;
+  root["numeric"] = service.numeric;
 
   char *c = new char[root.measureLength() + 1];
   root.printTo((char*)c, root.measureLength() + 1);
