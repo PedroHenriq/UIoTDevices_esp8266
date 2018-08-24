@@ -1,8 +1,10 @@
 #include "BaseProtocol_esp8266.h"
 
-bool BaseProtocol_esp8266::send_data(Service service,char *data, int sensitive=0) {
+bool BaseProtocol_esp8266::send_data(Service service,float *data, int array_size, int sensitive=0) {
   Serial.println("Send Data");
-	this->DEVICE_REGISTERED = (!this->DEVICE_REGISTERED)? this->register_all(service, data, sensitive) : this->register_data(service, data, sensitive);
+  char * char_data = float_to_char(data, array_size);
+	this->DEVICE_REGISTERED = (!this->DEVICE_REGISTERED)? this->register_all(service, char_data, sensitive) : this->register_data(service, char_data, sensitive);
+  free(char_data);
   return this->DEVICE_REGISTERED;
 }
 
@@ -191,6 +193,7 @@ char *BaseProtocol_esp8266::make_service_data(Service service){
   root["parameter"] = service.parameter;
   root["unit"] = service.unit;
   root["numeric"] = service.numeric;
+  root["number"] = service.number;
 
   char *c = new char[root.measureLength() + 1];
   root.printTo((char*)c, root.measureLength() + 1);
@@ -230,4 +233,37 @@ bool BaseProtocol_esp8266::register_data(Service s, char* value, int sensitive){
 byte BaseProtocol_esp8266::get_value_from_char(char hexa){
     return hexa - 48  - 7*(hexa>='A');
 
+}
+
+char* BaseProtocol_esp8266::float_to_char(float* float_array, int array_size){
+  char *values;
+  values = (char*)malloc(2*sizeof(char));
+  values[0] = '[';
+  values[1] = '\0';
+  String b;
+  int contador = 2;
+  for(int i = 0; i < array_size; i++){
+    // Serial.println(dtostrf(float_array[i], 10, 3, b));
+    b = String(float_array[i]);
+    contador += b.length() + 1;
+    // Serial.print("b:");
+    // Serial.println(b);
+    // Serial.print("contador: ");
+    // Serial.println(contador);
+    // Serial.print("values: ");
+    // Serial.println(values);
+    values = (char*) realloc (values, (contador) * sizeof(char));
+    strcat(values, b.c_str());
+    strcat(values, ",");
+    // Serial.print("values: ");
+    // Serial.println(values);
+  }
+  values[contador-2] = '\0';
+
+  strcat(values, "]");
+  // Serial.print("values: ");
+  // Serial.println(values);
+  // cout << values;
+
+  return values;
 }

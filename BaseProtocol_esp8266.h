@@ -33,10 +33,11 @@ class BaseProtocol_esp8266 {
         virtual bool register_device() = 0;
         virtual bool register_service(Service)= 0;
         virtual bool register_data(Service, char*, int)= 0;
-        bool send_data(Service , char*, int);
+        bool send_data(Service , float*, int, int);
         void device_identificator();
         Service create_service(int , const char *, String, bool, String);
         char nibble_to_char(int);
+        char* float_to_char(float*, int);
         char *make_client_data();
         char *make_service_data(Service);
         char *make_raw_data(Service, char*, int);
