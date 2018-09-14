@@ -18,9 +18,9 @@ void BaseProtocol_esp8266::device_identificator(){
  bool result = SPIFFS.begin();
  Serial.println("SPIFFS opened: " + result);
 
- File f = SPIFFS.open("/UIOT.txt", "r");
+  File f = SPIFFS.open("/UIOT.txt", "r");
 
-  if (!f){
+ if (!f){
     Serial.println("nao existe arquivo");
     Serial.println("Criando arquivo");
     File f = SPIFFS.open("/UIOT.txt", "w");
@@ -31,6 +31,7 @@ void BaseProtocol_esp8266::device_identificator(){
       int b = rand() % 123 + 1;
       int unique = a * b;
       bytes[i] = unique & iterator;
+    }
 
 
       this->mac_byte[4] = bytes[0];
@@ -69,7 +70,7 @@ void BaseProtocol_esp8266::device_identificator(){
 
       // EEPROM.write(i + 2,bytes[i]);
       //unique = unique >> 8;
-    }
+    // }
   } else{
 
 
