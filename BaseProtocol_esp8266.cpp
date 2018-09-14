@@ -1,7 +1,11 @@
 #include "BaseProtocol_esp8266.h"
 
+
+Service BaseProtocol_esp8266::create_service(int number, const char *name, String unit, bool numeric, String parameter){
+  return Service(number, name, unit, numeric, parameter);
+}
+
 bool BaseProtocol_esp8266::send_data(Service service,float *data, int array_size, int sensitive=0) {
-  Serial.println("Send Data");
   char * char_data = float_to_char(data, array_size);
 	this->DEVICE_REGISTERED = (!this->DEVICE_REGISTERED)? this->register_all(service, char_data, sensitive) : this->register_data(service, char_data, sensitive);
   free(char_data);
@@ -9,10 +13,8 @@ bool BaseProtocol_esp8266::send_data(Service service,float *data, int array_size
 }
 
 void BaseProtocol_esp8266::device_identificator(){
-  int address = 0;
-  int bytes[8];
-  // Serial.println(EEPROM.read(0));
-  // Serial.println(EEPROM.read(1));
+ int address = 0;
+ int bytes[8];
  bool result = SPIFFS.begin();
  Serial.println("SPIFFS opened: " + result);
 
@@ -22,25 +24,13 @@ void BaseProtocol_esp8266::device_identificator(){
     Serial.println("nao existe arquivo");
     Serial.println("Criando arquivo");
     File f = SPIFFS.open("/UIOT.txt", "w");
-    // // EEPROM.write(0, 74);
-    // EEPROM.write(1, 114);
 
     int iterator = 0xFF;
     for (int i = 0; i < 8; i++){
       int a = millis();
       int b = rand() % 123 + 1;
-      Serial.print("millis=");
-      Serial.println(a);
-      Serial.print("rand=");
-      Serial.println(b);
       int unique = a * b;
-      Serial.print("Unique=");
-      Serial.println(unique);
       bytes[i] = unique & iterator;
-      Serial.print("bytes[");
-      Serial.print(i);
-      Serial.print("]=");
-      Serial.println(bytes[i]);
 
 
       this->mac_byte[4] = bytes[0];
@@ -72,7 +62,8 @@ void BaseProtocol_esp8266::device_identificator(){
       while(f.available()) {
       //Lets read line by line from the file
       String line = f.readStringUntil('\n');
-      Serial.println(line);
+      Serial.println(this->mac);
+      Serial.println(this->chipset);
     }
 
 
@@ -82,7 +73,7 @@ void BaseProtocol_esp8266::device_identificator(){
   } else{
 
 
-
+    Serial.println("ELSE");
     this->mac = f.readStringUntil('\n');
     this->chipset = f.readStringUntil('\n');
 
@@ -133,87 +124,75 @@ void BaseProtocol_esp8266::device_identificator(){
 
 }
 
-Service BaseProtocol_esp8266::create_service(int number, const char *name, String unit, bool numeric, String parameter){
-  return Service(number, name, unit, numeric, parameter);
-}
-
 bool BaseProtocol_esp8266::register_all(Service service, char *data, int sensitive){
   Serial.println("Register all");
   return this->register_device() && this->register_service(service) && this->register_data(service, data, sensitive);
-  // this->register_device();
-  // this->register_service(service);
-	// return false;
-	//return this->register_device() && this->register_service(service) && this->register_data(data);
 }
 
-char *BaseProtocol_esp8266::make_client_data(){
-  Serial.println("Registering Device");
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.createObject();
-  // Serial.print("Name: ");
-  // Serial.println(this->name);
-  // Serial.print("Chipset: ");
-  // Serial.println(this->chipset);
-  // Serial.print("Mac: ");
-  // Serial.println(this->mac);
-  // Serial.print("serial: ");
-  // Serial.println(this->serial);
-  // Serial.print("Processor: ");
-  // Serial.println(this->processor);
-  // Serial.print("Channel: ");
-  // Serial.println(this->channel);
+char *BaseProtocol_esp8266::make_client_data(char* json){
+  // Serial.println("Registering Device");
 
-  String p;
-  root["name"] = this->name.c_str();
-  root["chipset"] = this->chipset;
-  root["mac"] = this->mac;
-  root["serial"] = this->serial.c_str();
-  root["processor"] = this->processor;
-  root["channel"] = this->channel;
-  char *c = new char[root.measureLength() + 1];
-  root.printTo((char*)c, root.measureLength() + 1);
-  Serial.println("auiiiiii");
-  Serial.println(c);
-  Serial.println("qqqqqqq");
-  return (c);
+  // Serial.println(strlen(json));
+  json = (char*)malloc(2*sizeof(char));
+  json[0] = '{';
+  json[1] = '\0';
+  json = this->append_json(json, "name", this->name.c_str());
+  json = this->append_json(json, "chipset", this->chipset.c_str());
+  json = this->append_json(json, "mac", this->mac.c_str());
+  json = this->append_json(json, "serial", this->serial.c_str());
+  json = this->append_json(json, "processor", this->processor.c_str());
+  json = this->append_json(json, "channel", this->channel.c_str());
+  json[strlen(json)-1] = '}';
+  // Serial.println(json);
+  return json;
 }
 
 
-char *BaseProtocol_esp8266::make_service_data(Service service){
-  Serial.println("Registering Service");
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.createObject();
+char *BaseProtocol_esp8266::make_service_data(Service service, char* json){
+  // Serial.println("Registering Service");
 
-  // root["number"] = service.number;
-
-
-  root["chipset"] = this->chipset;
-  root["mac"] = this->mac;
-  root["name"] = service.name;
-  root["parameter"] = service.parameter;
-  root["unit"] = service.unit;
-  root["numeric"] = service.numeric;
-  root["number"] = service.number;
-
-  char *c = new char[root.measureLength() + 1];
-  root.printTo((char*)c, root.measureLength() + 1);
-  return(c);
+    // Serial.println(strlen(json));
+    json = (char*)malloc(2*sizeof(char));
+    json[0] = '{';
+    json[1] = '\0';
+    json  = this->append_json(json, "name", service.name);
+    json = this->append_json(json, "chipset", this->chipset.c_str());
+    json = this->append_json(json, "mac", this->mac.c_str());
+    json = this->append_json(json, "parameter", service.parameter.c_str());
+    json = this->append_json(json, "number", String(service.number).c_str());
+    json = this->append_json(json, "unit", service.unit.c_str());
+    json = this->append_json(json, "numeric", String(service.numeric).c_str());
+    json[strlen(json)-1] = '}';
+    // Serial.println(json);
+    return json;
 }
 
-char *BaseProtocol_esp8266::make_raw_data(Service s, char *data, int sensitive){
-  Serial.println("Raw Data");
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.createObject();
+char *BaseProtocol_esp8266::make_raw_data(Service s, char *data, int sensitive, char* json){
+  // Serial.println("Raw Data");
+  // Serial.println(strlen(json));
+  json = (char*)malloc(2*sizeof(char));
+  json[0] = '{';
+  json[1] = '\0';
+  json = this->append_json(json, "chipset", this->chipset.c_str());
+  json = this->append_json(json, "mac", this->mac.c_str());
+  json = this->append_json(json, "sensitive", String(sensitive).c_str());
+  json = this->append_json(json, "serviceNumber", String(s.number).c_str());
+  json = this->append_json(json, "values", data);
+  json[strlen(json)-1] = '}';
+  // Serial.println(json);
+  return json;
+}
 
-  root["chipset"] = this->chipset;
-  root["mac"] = this->mac;
-  root["sensitive"] = sensitive;
-  root["serviceNumber"] = s.number;
-  root["values"] = data;
-
-  char *c = new char[root.measureLength() + 1];
-  root.printTo((char*)c, root.measureLength() + 1);
-  return(c);
+char* BaseProtocol_esp8266::append_json(char *json, const char* key, const char* value){
+  // Serial.println(strlen(json));
+  json = (char*) realloc (json, (strlen(key) + strlen(value) + 7 + strlen(json)) * sizeof(char)); // 6 because "" and : and ,
+  strcat(json, "\"");
+  strcat(json, key);
+  strcat(json, "\":\"");
+  strcat(json, value);
+  strcat(json, "\",");
+  json[strlen(json)] = '\0';
+  return json;
 }
 
 char BaseProtocol_esp8266::nibble_to_char(int nibble){

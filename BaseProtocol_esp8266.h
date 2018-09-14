@@ -38,10 +38,11 @@ class BaseProtocol_esp8266 {
         Service create_service(int , const char *, String, bool, String);
         char nibble_to_char(int);
         char* float_to_char(float*, int);
-        char *make_client_data();
-        char *make_service_data(Service);
-        char *make_raw_data(Service, char*, int);
+        char *make_client_data(char*);
+        char *make_service_data(Service, char*);
+        char *make_raw_data(Service, char*, int, char*);
         byte get_value_from_char(char);
+        char *append_json(char*, const char*, const char*);
 
     private:
         bool DEVICE_REGISTERED = false;
