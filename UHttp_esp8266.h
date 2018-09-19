@@ -4,6 +4,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include "BaseProtocol_esp8266.h"
+#include <WiFiManager.h>
 #include <ESP8266WiFi.h>
 
 class UHttp_esp8266 : public BaseProtocol_esp8266{

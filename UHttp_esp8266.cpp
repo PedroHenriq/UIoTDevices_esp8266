@@ -27,11 +27,14 @@ UHttp_esp8266::UHttp_esp8266(String server){
 void UHttp_esp8266::init(){
   this->device_identificator();
 
-  WiFi.begin("UIOT", "A12818UIOT");
-  while (WiFi.status() != WL_CONNECTED) {  //Wait for the WiFI connection completion
-    Serial.println("Connecting to Wifi");
-    delay(2500);
- }
+  WiFiManager wifimanager;
+  wifimanager.autoConnect(this->mac.c_str());
+
+ //  WiFi.begin("UIOT", "A12818UIOT");
+ //  while (WiFi.status() != WL_CONNECTED) {  //Wait for the WiFI connection completion
+ //    Serial.println("Connecting to Wifi");
+ //    delay(2500);
+ // }
  Serial.println("Connection Successfull");
 }
 
