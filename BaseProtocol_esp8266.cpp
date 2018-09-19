@@ -86,10 +86,10 @@ void BaseProtocol_esp8266::device_identificator(){
 
     Serial.println(this->mac_byte[4]);
     Serial.println(this->mac_byte[5]);
-    f.close();
 
 
   }
+  f.close();
 
 
 
