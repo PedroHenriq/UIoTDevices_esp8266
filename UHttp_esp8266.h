@@ -15,8 +15,8 @@ class UHttp_esp8266 : public BaseProtocol_esp8266{
         void set_server(String);
         // UHttp_esp8266(String);
         bool register_device();
-        bool register_service(Service);
-        bool register_data(Service, char*, int);
+        bool register_service(int);
+        bool register_data(int, char*, int);
 
         // char* add_mac_chipset(char *data);
         // char *json_to_char(JsonObject&);

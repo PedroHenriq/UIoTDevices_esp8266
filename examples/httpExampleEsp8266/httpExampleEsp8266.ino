@@ -1,7 +1,7 @@
 #include <UHttp_esp8266.h>
 
 UHttp_esp8266 cliente;
-Service service1;
+int service1;
 int tam = 10;
 
 void setup(){
@@ -9,10 +9,13 @@ void setup(){
 //  UHttp_esp8266 cliente("http://192.168.0.105:5000");
 //  Service service1 = cliente.create_service(1, "getTemp", "*C", true, "Temperatura");
 //  cliente.send_data(service1, (char*)"56", 0);
+  while (!Serial);
+  delay(1000);
 
-
+  Serial.println("ue");
   cliente.init();
-  cliente.set_server("http://172.16.9.69:8000");
+  Serial.println("ue2");
+  cliente.set_server("http://172.16.9.145:8000");
   service1 = cliente.create_service(1, "getTemp", "*C", true, "Temperatura");
 }
 
@@ -22,6 +25,7 @@ void loop(){
   cliente.send_data(service1, ptr , tam, 0);
   Serial.println("loop");
 }
+
 
 float* gerador_array(int tamanho){
   float *values;
@@ -36,57 +40,3 @@ float* gerador_array(int tamanho){
   }
   return values;
 }
-
-//#include <ArduinoJson.h>
-//#include <ESP8266HTTPClient.h>
-//#include <ESP8266WiFi.h>
-//
-//void setup() {
-//
-//  Serial.begin(115200);                                  //Serial connection
-//  WiFi.begin("Trojan 2.0", "Ologineasenh4!");   //WiFi connection
-//
-//  while (WiFi.status() != WL_CONNECTED) {  //Wait for the WiFI connection completion
-//
-//    delay(500);
-//    Serial.println("Waiting for connection");
-//
-//  }
-//
-//}
-//
-//void loop() {
-//
-// if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
-//   Serial.println("CONECTOU");
-//   HTTPClient http;    //Declare object of class HTTPClient
-//   http.begin("http://192.168.1.103:5000/formula");      //Specify request destination
-//   http.addHeader("Content-Type", "application/json");  //Specify content-type header
-////
-//
-//    StaticJsonBuffer<300> JSONbuffer;   //Declaring static JSON buffer
-//    JsonObject& JSONencoder = JSONbuffer.createObject();
-//
-//    JSONencoder["formula"] = "TESTE";
-//
-//    char JSONmessageBuffer[300];
-//    JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-//    Serial.println(JSONmessageBuffer);
-//
-//   int httpCode = http.POST(JSONmessageBuffer);   //Send the request
-//   String payload = http.getString();                  //Get the response payload
-//
-//   Serial.println(httpCode);   //Print HTTP return code
-//   Serial.println(payload);    //Print request response payload
-//
-//   http.end();  //Close connection
-//
-// }else{
-//
-//    Serial.println("Error in WiFi connection");
-//
-// }
-//
-//  delay(30000);  //Send a request every 30 seconds
-//
-//}

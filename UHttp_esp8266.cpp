@@ -25,11 +25,10 @@ UHttp_esp8266::UHttp_esp8266(String server){
 }
 
 void UHttp_esp8266::init(){
+  delay(1000);
   this->device_identificator();
-
   WiFiManager wifimanager;
   wifimanager.autoConnect(this->mac.c_str());
-
  //  WiFi.begin("UIOT", "A12818UIOT");
  //  while (WiFi.status() != WL_CONNECTED) {  //Wait for the WiFI connection completion
  //    Serial.println("Connecting to Wifi");
@@ -49,53 +48,41 @@ bool UHttp_esp8266::register_device(){
   data = this->make_client_data(data);
   this->http.begin(this->server + "/client");
   this->http.addHeader("Content-Type", "application/json");
-  int var = this->http.POST(data);
+  int code = this->http.POST(data);
+  String payload = this->http.getString();
+  Serial.println(data);
+  Serial.println(code);
+  Serial.println(payload);
   free(data);
-  if(var == 200) {
-    this->http.end();
-    return true;
-  }
-
-  // data = "oicara{'tudo': 1}";
-  // this->publish("Register/Device", data);
-  else {
-    this->http.end();
-    return false;
-  }
+  this->http.end();
+  return (code==200);
 }
-bool UHttp_esp8266::register_service(Service s){
+bool UHttp_esp8266::register_service(int s){
   char *data = NULL;
-  data = this->make_service_data(s, data);
+  // data = this->make_service_data(s, data);
+  data = this->make_service_data(this->service[s], data);
 
   this->http.begin(this->server + "/service");
   this->http.addHeader("Content-Type", "application/json");
-  int var = this->http.POST(data);
+  int code = this->http.POST(data);
+  String payload = this->http.getString();
+  Serial.println(code);
+  Serial.println(payload);
   free(data);
-  if(var == 200) {
-    this->http.end();
-    return true;
-  }
-
-  else {
   this->http.end();
-  return false;
-  }
+  return (code==200);
 }
-bool UHttp_esp8266::register_data(Service s, char* value, int sensitive){
+bool UHttp_esp8266::register_data(int s, char* value, int sensitive){
   char *data = NULL;
-  data = this->make_raw_data(s, value, sensitive, data);
-
+  // data = this->make_raw_data(s, value, sensitive, data);
+  data = this->make_raw_data(this->service[s], value, sensitive, data);
   this->http.begin(this->server + "/data");
   this->http.addHeader("Content-Type", "application/json");
-  int var = this->http.POST(data);
+  int code = this->http.POST(data);
+  String payload = this->http.getString();
+  Serial.println(code);
+  Serial.println(payload);
   free(data);
-  if(var == 200) {
-    this->http.end();
-    return true;
-  }
-
-  else {
   this->http.end();
-  return false;
-  }
+  return (code==200);
 }
