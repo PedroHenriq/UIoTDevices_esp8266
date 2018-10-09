@@ -28,7 +28,6 @@ void BaseProtocol_esp8266::device_identificator(){
   File f = SPIFFS.open("/UIOT.txt", "r");
 
  if (!f){
-    Serial.println("nao existe arquivo");
     Serial.println("Criando arquivo");
     File f = SPIFFS.open("/UIOT.txt", "w");
 
@@ -50,16 +49,16 @@ void BaseProtocol_esp8266::device_identificator(){
 
       for(int i = 0; i < 6; i++){
         byte b = this->chipset_byte[i];
-        this->chipset += this->get_value_from_char((b & 0xF0)>>4);
-        this->chipset += this->get_value_from_char(b & 0xF);
+        this->chipset += this->nibble_to_char((b & 0xF0)>>4);
+        this->chipset += this->nibble_to_char(b & 0xF);
         this->chipset += ":";
       }
       this->chipset.remove(this->chipset.length()-1,1);
 
       for(int i = 0; i < 6; i++){
         byte b = this->mac_byte[i];
-        this->mac += this->get_value_from_char((b & 0xF0)>>4);
-        this->mac += this->get_value_from_char(b & 0xF);
+        this->mac += this->nibble_to_char((b & 0xF0)>>4);
+        this->mac += this->nibble_to_char(b & 0xF);
         this->mac += ":";
       }
       this->mac.remove(this->mac.length()-1,1);
