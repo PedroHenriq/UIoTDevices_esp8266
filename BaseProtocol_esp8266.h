@@ -2,9 +2,6 @@
 #define BaseProtocol_esp8266_H
 
 
-#include <PubSubClient.h>
-#include <EEPROM.h>
-#include <ArduinoJson.h>
 #include <FS.h>
 
 class Service {

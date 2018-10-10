@@ -1,7 +1,6 @@
 #ifndef UHttp_esp8266_H
 #define UHttp_esp8266_H
 
-#include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include "BaseProtocol_esp8266.h"
 #include <WiFiManager.h>
